@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PropTypes from "prop-types";
 
 import "./App.css";
 
@@ -9,11 +10,17 @@ const initialItems = [
 ];
 
 function App() {
+  const [items, setItems] = useState([]);
+
+  function handleAddItems(item) {
+    setItems((items) => [...items, item]);
+  }
+
   return (
     <div className="app">
       <Logo />
-      <Form />
-      <PackingList />
+      <Form onAddItems={handleAddItems} />
+      <PackingList items={items} />
       <Stats />
     </div>
   );
@@ -23,7 +30,7 @@ function Logo() {
   return <h1>🦍 Far Away 👽</h1>;
 }
 
-function Form() {
+function Form({ onAddItems }) {
   const [description, setDescription] = useState("");
   const [quantity, setQuantity] = useState("");
 
@@ -33,6 +40,8 @@ function Form() {
 
     const newItem = { description, quantity, packed: false, id: Date.now() };
     console.log(newItem);
+
+    onAddItems(newItem);
 
     setDescription("");
     setQuantity("");
@@ -66,17 +75,32 @@ function Form() {
   );
 }
 
-function PackingList() {
+Form.propTypes = {
+  onAddItems: PropTypes.func.isRequired,
+};
+
+function PackingList({ items }) {
   return (
     <div className="list">
       <ul>
-        {initialItems.map((item) => (
+        {items.map((item) => (
           <Item item={item} key={item.id} />
         ))}
       </ul>
     </div>
   );
 }
+
+PackingList.propTypes = {
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      description: PropTypes.string.isRequired,
+      quantity: PropTypes.number.isRequired,
+      packed: PropTypes.bool.isRequired,
+    })
+  ).isRequired,
+};
 
 function Item({ item }) {
   return (
@@ -89,6 +113,15 @@ function Item({ item }) {
   );
 }
 
+Item.propTypes = {
+  item: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    description: PropTypes.string.isRequired,
+    quantity: PropTypes.number.isRequired,
+    packed: PropTypes.bool.isRequired,
+  }).isRequired,
+};
+
 function Stats() {
   return (
     <footer>
@@ -96,4 +129,5 @@ function Stats() {
     </footer>
   );
 }
+
 export default App;
